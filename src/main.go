@@ -22,7 +22,6 @@ import (
 	todoconsumer "github.com/furkancmn57/go-base-template/src/consumers/todo"
 	v1 "github.com/furkancmn57/go-base-template/src/controllers/v1"
 	"github.com/furkancmn57/go-base-template/src/extensions"
-	appgraphql "github.com/furkancmn57/go-base-template/src/graphql"
 	todoservice "github.com/furkancmn57/go-base-template/src/services/todo"
 
 	_ "github.com/furkancmn57/go-base-template/src/docs"
@@ -63,15 +62,6 @@ func main() {
 	todoService := todoservice.NewService(gormDB, mq)
 	api := app.Group("/api/" + constants.APIVersion)
 	v1.NewTodoController(todoService).Register(api)
-
-	if cfg.GraphQL.Enabled {
-		schema, err := appgraphql.NewSchema(todoService)
-		if err != nil {
-			log.Fatalf("main: graphql schema: %v", err)
-		}
-		extensions.RegisterGraphQL(app, schema)
-		log.Println("main: GraphQL enabled at /graphql")
-	}
 
 	if err := todoconsumer.NewLogWhenTodoCompleted().Register(mq); err != nil {
 		log.Fatalf("main: failed to register todo consumer: %v", err)

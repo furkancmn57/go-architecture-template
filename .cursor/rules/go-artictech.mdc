@@ -7,8 +7,8 @@ alwaysApply: true
 # Go Base Template — Mimari Kuralları
 
 Yatay katmanlı monolit (NotificationApi düzeni). Stack: Fiber v2, GORM/Postgres,
-RabbitMQ (best-effort), Redis, ozzo-validation, OpenAPI via swaggo + UI at `/openapi/*`,
-opsiyonel GraphQL (`GRAPHQL_ENABLED`, varsayılan kapalı).
+RabbitMQ (best-effort), Redis, ozzo-validation, OpenAPI via swaggo + UI at `/openapi/*`.
+GraphQL: ayrı branch `feature/graphql` (main'de yok).
 
 ## Yasaklar
 
@@ -25,9 +25,8 @@ opsiyonel GraphQL (`GRAPHQL_ENABLED`, varsayılan kapalı).
 ```text
 src/main.go
 src/config/                      # env loader
-src/extensions/                  # Add*, RegisterHealth, RegisterOpenAPI, RegisterGraphQL
+src/extensions/                  # Add*, RegisterHealth, RegisterOpenAPI
 src/docs/                        # swag çıktısı — `make openapi` ile yenile, commit et
-src/graphql/                     # opsiyonel schema/resolvers → aynı service'ler (REST ile paralel)
 src/common/ (+ apperr/)          # Model, WriteJSON, BaseConsumer
 src/constants/
 src/interfaces/                  # Publisher, Subscriber, Cache
@@ -55,4 +54,4 @@ Outbound HTTP client gerektiğinde `src/proxies/` eklenir.
 - Wiring: `main` → `extensions.Add*` → service → `controller.Register(api)` / consumer
 - Route'lar controller `Register` içinde; `main` sadece API group + `Register` çağırır
 - OpenAPI: handler annotation → `make openapi` → `src/docs` commit → UI `/openapi/*`
-- GraphQL (opsiyonel): `GRAPHQL_ENABLED=true` → `src/graphql` schema + `extensions.RegisterGraphQL`; resolver'lar service çağırır (iş kuralı yazılmaz)
+- GraphQL istenirse: `feature/graphql` branch (main'de taşınmaz)

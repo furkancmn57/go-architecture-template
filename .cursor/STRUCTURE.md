@@ -125,15 +125,9 @@ Rules:
 7. Controller: `controllers/v1/{name}.go` + `Register(api)` for its routes
 8. Controller annotations (`@Summary`, `@Router`, …) + `make openapi` (commit `src/docs`)
 9. Wire in `main.go`: `NewXController(svc).Register(api)`
-10. (Optional) GraphQL fields in `src/graphql/` calling the same service; enable with `GRAPHQL_ENABLED=true`
 
-## Optional GraphQL
+## GraphQL
 
-Default transport is REST. GraphQL is opt-in infrastructure:
-
-- Config: `GRAPHQL_ENABLED` (`config.GraphQL`, default `false`)
-- Mount: `extensions.RegisterGraphQL` → `/graphql` (+ GraphiQL)
-- Schema/resolvers: `src/graphql/` — thin, same services as controllers (no extra business logic)
-
-When adding a resource that should also expose GraphQL, extend `src/graphql` and
-pass the service into `NewSchema` from `main` (only when enabled).
+Not on `main`. Use branch
+[`feature/graphql`](https://github.com/furkancmn57/go-base-template/tree/feature/graphql)
+(`git checkout feature/graphql`).

@@ -18,7 +18,6 @@ Horizontal-layer Go API template (NotificationApi-style). Single binary entry at
 | Messaging | RabbitMQ |
 | Validation | ozzo-validation |
 | API docs | OpenAPI (swaggo) at `/openapi/*` |
-| GraphQL | Optional (`GRAPHQL_ENABLED=true`) |
 
 ## Layout
 
@@ -26,12 +25,11 @@ Horizontal-layer Go API template (NotificationApi-style). Single binary entry at
 src/
   main.go
   config/           # env loader
-  extensions/       # DB, Redis, RabbitMQ, health, OpenAPI, GraphQL
+  extensions/       # DB, Redis, RabbitMQ, health, OpenAPI
   common/           # Model, WriteJSON, BaseConsumer, apperr
   constants/
   interfaces/       # Publisher, Subscriber, Cache
   controllers/v1/   # thin HTTP handlers
-  graphql/          # optional schema/resolvers → same services
   services/         # {resource}/ + validations/; cache/
   data/             # entities, mappings, postgres, migrate
   models/           # requests/, responses/
@@ -53,9 +51,15 @@ make run
 | API | http://localhost:8080/api/v1 |
 | Health | http://localhost:8080/health |
 | OpenAPI | http://localhost:8080/openapi/index.html |
-| GraphQL | http://localhost:8080/graphql |
 
-GraphQL is off by default. Set `GRAPHQL_ENABLED=true` in `.env` to enable it.
+## GraphQL (optional)
+
+`main` REST-only. GraphQL transport lives on a separate branch:
+
+| | |
+|--|--|
+| Branch | [`feature/graphql`](https://github.com/furkancmn57/go-base-template/tree/feature/graphql) |
+| Checkout | `git fetch origin && git checkout feature/graphql` |
 
 ## Make
 
