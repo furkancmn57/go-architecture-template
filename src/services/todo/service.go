@@ -7,12 +7,12 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
-	"github.com/furkancmn57/go-base-template/src/common/apperr"
-	"github.com/furkancmn57/go-base-template/src/constants"
-	"github.com/furkancmn57/go-base-template/src/data/entities"
-	"github.com/furkancmn57/go-base-template/src/models/requests"
-	"github.com/furkancmn57/go-base-template/src/models/responses"
-	"github.com/furkancmn57/go-base-template/src/services/todo/validations"
+	"github.com/furkancmn57/go-architecture-template/src/common/apperr"
+	"github.com/furkancmn57/go-architecture-template/src/constants"
+	"github.com/furkancmn57/go-architecture-template/src/data/entities"
+	"github.com/furkancmn57/go-architecture-template/src/models/requests"
+	"github.com/furkancmn57/go-architecture-template/src/models/responses"
+	"github.com/furkancmn57/go-architecture-template/src/services/todo/validations"
 )
 
 // Service implements every todo use-case directly against *gorm.DB —

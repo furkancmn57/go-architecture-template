@@ -1,4 +1,4 @@
-APP_NAME := go-base-template
+APP_NAME := go-architecture-template
 MAIN_PATH := ./src/main.go
 GOBIN := $(shell go env GOPATH)/bin
 export PATH := $(GOBIN):$(PATH)

@@ -7,8 +7,8 @@ import (
 
 	goredis "github.com/redis/go-redis/v9"
 
-	"github.com/furkancmn57/go-base-template/src/config"
-	"github.com/furkancmn57/go-base-template/src/interfaces"
+	"github.com/furkancmn57/go-architecture-template/src/config"
+	"github.com/furkancmn57/go-architecture-template/src/interfaces"
 )
 
 type redisCache struct {

@@ -9,7 +9,7 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"github.com/furkancmn57/go-base-template/src/config"
+	"github.com/furkancmn57/go-architecture-template/src/config"
 )
 
 // maintenanceDB is the catalog DB used only to create the application database.

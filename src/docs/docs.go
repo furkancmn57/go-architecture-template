@@ -30,7 +30,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_furkancmn57_go-base-template_src_models_responses.TodoResponse"
+                                "$ref": "#/definitions/github_com_furkancmn57_go-architecture-template_src_models_responses.TodoResponse"
                             }
                         }
                     }
@@ -55,7 +55,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_furkancmn57_go-base-template_src_models_requests.CreateTodoRequest"
+                            "$ref": "#/definitions/github_com_furkancmn57_go-architecture-template_src_models_requests.CreateTodoRequest"
                         }
                     }
                 ],
@@ -63,13 +63,13 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_furkancmn57_go-base-template_src_models_responses.TodoResponse"
+                            "$ref": "#/definitions/github_com_furkancmn57_go-architecture-template_src_models_responses.TodoResponse"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/github_com_furkancmn57_go-base-template_src_common_apperr.Error"
+                            "$ref": "#/definitions/github_com_furkancmn57_go-architecture-template_src_common_apperr.Error"
                         }
                     }
                 }
@@ -97,13 +97,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_furkancmn57_go-base-template_src_models_responses.TodoResponse"
+                            "$ref": "#/definitions/github_com_furkancmn57_go-architecture-template_src_models_responses.TodoResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_furkancmn57_go-base-template_src_common_apperr.Error"
+                            "$ref": "#/definitions/github_com_furkancmn57_go-architecture-template_src_common_apperr.Error"
                         }
                     }
                 }
@@ -133,7 +133,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_furkancmn57_go-base-template_src_models_requests.UpdateTodoRequest"
+                            "$ref": "#/definitions/github_com_furkancmn57_go-architecture-template_src_models_requests.UpdateTodoRequest"
                         }
                     }
                 ],
@@ -141,13 +141,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_furkancmn57_go-base-template_src_models_responses.TodoResponse"
+                            "$ref": "#/definitions/github_com_furkancmn57_go-architecture-template_src_models_responses.TodoResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_furkancmn57_go-base-template_src_common_apperr.Error"
+                            "$ref": "#/definitions/github_com_furkancmn57_go-architecture-template_src_common_apperr.Error"
                         }
                     }
                 }
@@ -173,7 +173,7 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_furkancmn57_go-base-template_src_common_apperr.Error"
+                            "$ref": "#/definitions/github_com_furkancmn57_go-architecture-template_src_common_apperr.Error"
                         }
                     }
                 }
@@ -201,13 +201,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_furkancmn57_go-base-template_src_models_responses.TodoResponse"
+                            "$ref": "#/definitions/github_com_furkancmn57_go-architecture-template_src_models_responses.TodoResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_furkancmn57_go-base-template_src_common_apperr.Error"
+                            "$ref": "#/definitions/github_com_furkancmn57_go-architecture-template_src_common_apperr.Error"
                         }
                     }
                 }
@@ -215,7 +215,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_furkancmn57_go-base-template_src_common_apperr.Error": {
+        "github_com_furkancmn57_go-architecture-template_src_common_apperr.Error": {
             "type": "object",
             "properties": {
                 "code": {
@@ -232,7 +232,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_furkancmn57_go-base-template_src_models_requests.CreateTodoRequest": {
+        "github_com_furkancmn57_go-architecture-template_src_models_requests.CreateTodoRequest": {
             "type": "object",
             "properties": {
                 "description": {
@@ -243,7 +243,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_furkancmn57_go-base-template_src_models_requests.UpdateTodoRequest": {
+        "github_com_furkancmn57_go-architecture-template_src_models_requests.UpdateTodoRequest": {
             "type": "object",
             "properties": {
                 "completed": {
@@ -257,7 +257,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_furkancmn57_go-base-template_src_models_responses.TodoResponse": {
+        "github_com_furkancmn57_go-architecture-template_src_models_responses.TodoResponse": {
             "type": "object",
             "properties": {
                 "completed": {

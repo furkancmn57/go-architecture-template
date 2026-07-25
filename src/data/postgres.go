@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"github.com/furkancmn57/go-base-template/src/config"
+	"github.com/furkancmn57/go-architecture-template/src/config"
 )
 
 // New opens a *gorm.DB connection to Postgres.

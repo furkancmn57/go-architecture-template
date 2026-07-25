@@ -4,8 +4,8 @@ package extensions
 import (
 	"gorm.io/gorm"
 
-	"github.com/furkancmn57/go-base-template/src/config"
-	"github.com/furkancmn57/go-base-template/src/data"
+	"github.com/furkancmn57/go-architecture-template/src/config"
+	"github.com/furkancmn57/go-architecture-template/src/data"
 )
 
 // AddDatabase creates the DB if missing, opens Postgres, and runs versioned migrations.

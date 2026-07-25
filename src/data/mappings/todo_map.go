@@ -1,7 +1,7 @@
 package mappings
 
 import (
-	"github.com/furkancmn57/go-base-template/src/data/entities"
+	"github.com/furkancmn57/go-architecture-template/src/data/entities"
 	"gorm.io/gorm"
 )
 

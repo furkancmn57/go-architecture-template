@@ -7,8 +7,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/furkancmn57/go-base-template/src/config"
-	"github.com/furkancmn57/go-base-template/src/data/migrations"
+	"github.com/furkancmn57/go-architecture-template/src/config"
+	"github.com/furkancmn57/go-architecture-template/src/data/migrations"
 )
 
 // schemaMigration tracks which code-first migrations have been applied.

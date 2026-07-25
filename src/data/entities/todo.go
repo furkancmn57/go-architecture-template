@@ -1,6 +1,6 @@
 package entities
 
-import "github.com/furkancmn57/go-base-template/src/common"
+import "github.com/furkancmn57/go-architecture-template/src/common"
 
 // Todo is the app-facing persistence model (POCO). Schema/columns live in mappings.TodoMap.
 // TableName must match mappings.TodoMap.TableName().

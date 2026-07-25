@@ -5,12 +5,12 @@ package v1
 import (
 	"github.com/gofiber/fiber/v2"
 
-	"github.com/furkancmn57/go-base-template/src/common"
-	"github.com/furkancmn57/go-base-template/src/common/apperr"
-	"github.com/furkancmn57/go-base-template/src/constants"
-	"github.com/furkancmn57/go-base-template/src/models/requests"
-	_ "github.com/furkancmn57/go-base-template/src/models/responses"
-	todoservice "github.com/furkancmn57/go-base-template/src/services/todo"
+	"github.com/furkancmn57/go-architecture-template/src/common"
+	"github.com/furkancmn57/go-architecture-template/src/common/apperr"
+	"github.com/furkancmn57/go-architecture-template/src/constants"
+	"github.com/furkancmn57/go-architecture-template/src/models/requests"
+	_ "github.com/furkancmn57/go-architecture-template/src/models/responses"
+	todoservice "github.com/furkancmn57/go-architecture-template/src/services/todo"
 )
 
 // TodoController holds thin HTTP handlers for the todo resource.

@@ -3,7 +3,7 @@ package migrations
 import (
 	"gorm.io/gorm"
 
-	"github.com/furkancmn57/go-base-template/src/data/mappings"
+	"github.com/furkancmn57/go-architecture-template/src/data/mappings"
 )
 
 func init() {
