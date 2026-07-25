@@ -96,5 +96,5 @@ src/controllers/v1/{resource}.go   # handlers + Register(api)
 ## GraphQL
 
 Not on `main`. Use branch
-[`feature/graphql`](https://github.com/furkancmn57/go-base-template/tree/feature/graphql)
-(`git checkout feature/graphql`).
+[`graphql`](https://github.com/furkancmn57/go-base-template/tree/graphql)
+(`git checkout graphql`).

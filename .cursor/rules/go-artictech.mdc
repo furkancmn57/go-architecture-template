@@ -8,7 +8,7 @@ alwaysApply: true
 
 Yatay katmanlı monolit (NotificationApi düzeni). Stack: Fiber v2, GORM/Postgres
 (code-first Fluent + versioned migrations), Redis, ozzo-validation, OpenAPI (swaggo).
-GraphQL: ayrı branch `feature/graphql` (main'de yok).
+GraphQL: ayrı branch `graphql` (main'de yok).
 
 ## Yasaklar
 
@@ -55,4 +55,4 @@ src/models/requests|responses/
 - Controller ince: decode → service → `WriteJSON` / `WriteHTTP`
 - Validation: `services/{resource}/validations/`
 - OpenAPI: annotation → `make openapi`
-- GraphQL: `feature/graphql` branch
+- GraphQL: `graphql` branch

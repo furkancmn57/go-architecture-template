@@ -58,8 +58,8 @@ make run-dev    # APP_ENV=development
 
 | | |
 |--|--|
-| Branch | [`feature/graphql`](https://github.com/furkancmn57/go-base-template/tree/feature/graphql) |
-| Checkout | `git fetch origin && git checkout feature/graphql` |
+| Branch | [`graphql`](https://github.com/furkancmn57/go-base-template/tree/graphql) |
+| Checkout | `git fetch origin && git checkout graphql` |
 
 ## Make
 
