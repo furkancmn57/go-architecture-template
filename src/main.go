@@ -23,6 +23,7 @@ import (
 	"github.com/furkancmn57/go-base-template/src/constants"
 	v1 "github.com/furkancmn57/go-base-template/src/controllers/v1"
 	"github.com/furkancmn57/go-base-template/src/extensions"
+	appgraphql "github.com/furkancmn57/go-base-template/src/graphql"
 	todoservice "github.com/furkancmn57/go-base-template/src/services/todo"
 
 	_ "github.com/furkancmn57/go-base-template/src/docs"
@@ -68,6 +69,16 @@ func main() {
 	todoService := todoservice.NewService(gormDB)
 	api := app.Group("/api/" + constants.APIVersion)
 	v1.NewTodoController(todoService).Register(api)
+
+	if cfg.GraphQL.Enabled {
+		schema, err := appgraphql.NewSchema(todoService)
+		if err != nil {
+			slog.Error("graphql schema", "error", err)
+			os.Exit(1)
+		}
+		extensions.RegisterGraphQL(app, schema)
+		slog.Info("graphql enabled", "path", "/graphql")
+	}
 
 	go func() {
 		if err := app.Listen(":" + cfg.AppPort); err != nil {

@@ -23,6 +23,7 @@ type Config struct {
 
 	Postgres Postgres
 	Redis    Redis
+	GraphQL  GraphQL
 }
 
 // Load reads src/config/env/env.{APP_ENV} (default: local) and parses into Config.

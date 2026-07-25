@@ -85,13 +85,25 @@ src/controllers/v1/{resource}.go   # handlers + Register(api)
 
 `main` → `api := app.Group("/api/v1")` → `NewXController(svc).Register(api)`.
 
+## GraphQL (this branch)
+
+```text
+src/graphql/schema.go
+src/graphql/{resource}.go          # fields + mutations → same service
+src/extensions/graphql.go          # RegisterGraphQL → /graphql
+src/config/graphql.go              # GRAPHQL_ENABLED
+```
+
+Enable with `GRAPHQL_ENABLED=true`. Resolvers must call `services/`, not duplicate rules.
+
 ## Quick checklist for a new resource
 
 1. Entity (POCO) + Fluent map (`Entity`/`Columns`/`Migrate`) + versioned migration
 2. Requests / responses (one type per file)
 3. Service + validations
 4. Controller handlers + `Register(api)` + swag + `make openapi`
-5. Wire in `main.go`
+5. GraphQL fields/mutations in `src/graphql/` (same service)
+6. Wire in `main.go`
 
 ## GraphQL
 

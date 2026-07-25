@@ -1,6 +1,6 @@
-# Go Base Template
+# Go Base Template (`feature/graphql`)
 
-Horizontal-layer Go API template (NotificationApi-style). Single binary entry at `src/main.go`.
+Same stack as `main`, plus optional GraphQL transport at `/graphql`.
 
 | Doc | Path |
 |-----|------|
@@ -18,6 +18,7 @@ Horizontal-layer Go API template (NotificationApi-style). Single binary entry at
 | Validation | ozzo-validation |
 | Logging | `log/slog` (text in local/dev, JSON elsewhere) |
 | API docs | OpenAPI (swaggo) at `/openapi/*` |
+| GraphQL | Optional (`GRAPHQL_ENABLED=true`) — same services as REST |
 
 ## Layout
 
@@ -25,11 +26,12 @@ Horizontal-layer Go API template (NotificationApi-style). Single binary entry at
 src/
   main.go
   config/           # env loader + env/env.local, env/env.development
-  extensions/       # DB, Redis, health, OpenAPI
+  extensions/       # DB, Redis, health, OpenAPI, GraphQL
   common/           # Model, WriteJSON, apperr, logger
   constants/
   interfaces/       # Cache
   controllers/v1/   # thin handlers + Register(api)
+  graphql/          # schema/resolvers → same services
   services/         # {resource}/ + validations/; cache/
   data/             # entities (POCO) + Fluent mappings + versioned migrations
   models/           # requests/, responses/
@@ -46,20 +48,20 @@ make run        # APP_ENV=local
 make run-dev    # APP_ENV=development
 ```
 
+Enable GraphQL:
+
+```bash
+GRAPHQL_ENABLED=true make run
+```
+
 | Endpoint | URL |
 |----------|-----|
 | API | http://localhost:7090/api/v1 |
 | Health | http://localhost:7090/health |
 | OpenAPI | http://localhost:7090/openapi/index.html |
+| GraphQL | http://localhost:7090/graphql |
 
-## GraphQL (optional)
-
-`main` is REST-only. GraphQL lives on a separate branch:
-
-| | |
-|--|--|
-| Branch | [`feature/graphql`](https://github.com/furkancmn57/go-base-template/tree/feature/graphql) |
-| Checkout | `git fetch origin && git checkout feature/graphql` |
+REST-only template: [`main`](https://github.com/furkancmn57/go-base-template/tree/main).
 
 ## Make
 

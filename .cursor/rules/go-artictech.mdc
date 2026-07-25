@@ -7,8 +7,8 @@ alwaysApply: true
 # Go Base Template — Mimari Kuralları
 
 Yatay katmanlı monolit (NotificationApi düzeni). Stack: Fiber v2, GORM/Postgres
-(code-first Fluent + versioned migrations), Redis, ozzo-validation, OpenAPI (swaggo).
-GraphQL: ayrı branch `feature/graphql` (main'de yok).
+(code-first Fluent + versioned migrations), Redis, ozzo-validation, OpenAPI (swaggo),
+opsiyonel GraphQL (`GRAPHQL_ENABLED`). Bu branch GraphQL içerir; REST-only için `main`.
 
 ## Yasaklar
 
@@ -19,6 +19,7 @@ GraphQL: ayrı branch `feature/graphql` (main'de yok).
 - Ham `error` handler'dan sızmaz — `*apperr.Error` + `apperr.WriteHTTP`
 - Hata `code` string'leri hardcoded değil — `constants/` (`TODO_NOT_FOUND`, …)
 - Fat controller yok — ince handler + `Register(api)`
+- GraphQL ayrı iş kuralı yazmaz — aynı `services/` kullanılır
 - Entity üzerinde kolon/type GORM tag yok — şema Fluent map (`Columns` + `Migrate`)
 - Shadow kolon struct yasak — `AutoMigrate(entity)` + `ApplyColumns`
 - Entity `mappings` import etmez (cycle); `TableName` map ile aynı string
@@ -30,13 +31,14 @@ GraphQL: ayrı branch `feature/graphql` (main'de yok).
 
 ```text
 src/main.go
-src/config/
-src/extensions/          # AddDatabase, AddRedis, health, OpenAPI
+src/config/              # + graphql.go (GRAPHQL_ENABLED)
+src/extensions/          # AddDatabase, AddRedis, health, OpenAPI, GraphQL
 src/docs/
 src/common/              # Model, WriteJSON, apperr, logger
 src/constants/
 src/interfaces/          # Cache
 src/controllers/v1/      # ince handler + Register(api)
+src/graphql/             # schema + resolvers → services
 src/services/{resource}/ (+ validations/)
 src/services/cache/
 src/data/
@@ -52,7 +54,7 @@ src/models/requests|responses/
 - Code-first Fluent: entity alanları + map `Columns`/`Migrate`
 - Startup: `data.Setup` → DB yoksa oluştur → pending migration → `schema_migrations`
 - HTTP: `controllers/v1` — `Register(api)` path'leri handler ile birlikte
-- Controller ince: decode → service → `WriteJSON` / `WriteHTTP`
+- GraphQL: `GRAPHQL_ENABLED=true` → `/graphql` (+ GraphiQL)
+- Controller / resolver ince: decode → service → yanıt
 - Validation: `services/{resource}/validations/`
 - OpenAPI: annotation → `make openapi`
-- GraphQL: `feature/graphql` branch
