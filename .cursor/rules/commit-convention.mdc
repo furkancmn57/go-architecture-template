@@ -15,12 +15,12 @@ Commit mesajları [`.cursor/COMMIT.md`](../COMMIT.md) içindeki **Conventional C
 
 - Imperative, kısa subject; gerekirse body'de **neden**
 - Yaygın type'lar: `feat`, `fix`, `docs`, `refactor`, `build`, `chore`, `test`, `ci`, `perf`
-- Scope örnekleri: `todo`, `graphql`, `openapi`, `config`, `cursor`
+- Scope örnekleri: `todo`, `graphql`, `config`, `cursor`
 
 ## Örnek
 
 ```text
-feat(graphql): enable optional /graphql behind GRAPHQL_ENABLED
+refactor(graphql): drop GORM and serve GraphQL only
 ```
 
 Commit isterken bu dosyayı ve `COMMIT.md`'yi kaynak kabul et; eski serbest cümle stilini kullanma.

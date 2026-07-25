@@ -2,149 +2,170 @@ package todo
 
 import (
 	"context"
-	"errors"
+	"sort"
+	"sync"
+	"time"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 
 	"github.com/furkancmn57/go-base-template/src/common/apperr"
 	"github.com/furkancmn57/go-base-template/src/constants"
-	"github.com/furkancmn57/go-base-template/src/data/entities"
 	"github.com/furkancmn57/go-base-template/src/models/requests"
 	"github.com/furkancmn57/go-base-template/src/models/responses"
 	"github.com/furkancmn57/go-base-template/src/services/todo/validations"
 )
 
-// Service implements every todo use-case directly against *gorm.DB —
-// there is no repository layer in this architecture.
+// Todo is the in-memory domain model.
+type Todo struct {
+	ID          uuid.UUID
+	Title       string
+	Description string
+	Completed   bool
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+// Service implements todo use-cases with a process-local map (no DB on this branch).
 type Service struct {
-	db *gorm.DB
+	mu   sync.RWMutex
+	byID map[uuid.UUID]*Todo
 }
 
-// NewService wires a Service with its GORM handle.
-func NewService(db *gorm.DB) *Service {
-	return &Service{db: db}
+// NewService wires a Service with an empty in-memory collection.
+func NewService() *Service {
+	return &Service{byID: make(map[uuid.UUID]*Todo)}
 }
 
-// Create validates and persists a new todo.
-func (s *Service) Create(ctx context.Context, req requests.CreateTodoRequest) (*responses.TodoResponse, *apperr.Error) {
+// Create validates and stores a new todo.
+func (s *Service) Create(_ context.Context, req requests.CreateTodoRequest) (*responses.TodoResponse, *apperr.Error) {
 	if err := validations.CreateTodoRequest(req); err != nil {
 		return nil, err
 	}
 
-	entity := entities.Todo{Title: req.Title, Description: req.Description}
-	if err := s.db.WithContext(ctx).Create(&entity).Error; err != nil {
-		return nil, apperr.Internal(err)
+	now := time.Now().UTC()
+	row := &Todo{
+		ID:          uuid.New(),
+		Title:       req.Title,
+		Description: req.Description,
+		CreatedAt:   now,
+		UpdatedAt:   now,
 	}
 
-	resp := toResponse(entity)
+	s.mu.Lock()
+	s.byID[row.ID] = row
+	s.mu.Unlock()
+
+	resp := toResponse(row)
 	return &resp, nil
 }
 
 // Todos lists every todo, most recent first.
-func (s *Service) Todos(ctx context.Context) ([]responses.TodoResponse, *apperr.Error) {
-	var rows []entities.Todo
-	if err := s.db.WithContext(ctx).Order("created_at desc").Find(&rows).Error; err != nil {
-		return nil, apperr.Internal(err)
+func (s *Service) Todos(_ context.Context) ([]responses.TodoResponse, *apperr.Error) {
+	s.mu.RLock()
+	rows := make([]*Todo, 0, len(s.byID))
+	for _, row := range s.byID {
+		rows = append(rows, row)
 	}
+	s.mu.RUnlock()
 
+	sort.Slice(rows, func(i, j int) bool {
+		return rows[i].CreatedAt.After(rows[j].CreatedAt)
+	})
 	out := make([]responses.TodoResponse, 0, len(rows))
-	for _, entity := range rows {
-		out = append(out, toResponse(entity))
+	for _, row := range rows {
+		out = append(out, toResponse(row))
 	}
 	return out, nil
 }
 
 // TodoById fetches a single todo by its ID.
-func (s *Service) TodoById(ctx context.Context, id string) (*responses.TodoResponse, *apperr.Error) {
-	entity, appErr := s.findByID(ctx, id)
+func (s *Service) TodoById(_ context.Context, id string) (*responses.TodoResponse, *apperr.Error) {
+	row, appErr := s.findByID(id)
 	if appErr != nil {
 		return nil, appErr
 	}
-	resp := toResponse(*entity)
+	resp := toResponse(row)
 	return &resp, nil
 }
 
 // Update validates and applies changes to an existing todo.
-func (s *Service) Update(ctx context.Context, id string, req requests.UpdateTodoRequest) (*responses.TodoResponse, *apperr.Error) {
+func (s *Service) Update(_ context.Context, id string, req requests.UpdateTodoRequest) (*responses.TodoResponse, *apperr.Error) {
 	if err := validations.UpdateTodoRequest(req); err != nil {
 		return nil, err
 	}
-
-	entity, appErr := s.findByID(ctx, id)
+	row, appErr := s.findByID(id)
 	if appErr != nil {
 		return nil, appErr
 	}
 
-	entity.Title = req.Title
-	entity.Description = req.Description
-	entity.Completed = req.Completed
+	s.mu.Lock()
+	row.Title = req.Title
+	row.Description = req.Description
+	row.Completed = req.Completed
+	row.UpdatedAt = time.Now().UTC()
+	s.mu.Unlock()
 
-	if err := s.db.WithContext(ctx).Save(entity).Error; err != nil {
-		return nil, apperr.Internal(err)
-	}
-
-	resp := toResponse(*entity)
+	resp := toResponse(row)
 	return &resp, nil
 }
 
 // Complete marks a todo as completed.
-func (s *Service) Complete(ctx context.Context, id string) (*responses.TodoResponse, *apperr.Error) {
-	entity, appErr := s.findByID(ctx, id)
+func (s *Service) Complete(_ context.Context, id string) (*responses.TodoResponse, *apperr.Error) {
+	row, appErr := s.findByID(id)
 	if appErr != nil {
 		return nil, appErr
 	}
-
-	if entity.Completed {
+	if row.Completed {
 		return nil, apperr.Conflict(constants.TodoAlreadyCompleted, "todo is already completed")
 	}
 
-	entity.Completed = true
-	if err := s.db.WithContext(ctx).Save(entity).Error; err != nil {
-		return nil, apperr.Internal(err)
-	}
+	s.mu.Lock()
+	row.Completed = true
+	row.UpdatedAt = time.Now().UTC()
+	s.mu.Unlock()
 
-	resp := toResponse(*entity)
+	resp := toResponse(row)
 	return &resp, nil
 }
 
-// Delete soft-deletes a todo.
-func (s *Service) Delete(ctx context.Context, id string) *apperr.Error {
-	entity, appErr := s.findByID(ctx, id)
-	if appErr != nil {
-		return appErr
+// Delete removes a todo.
+func (s *Service) Delete(_ context.Context, id string) *apperr.Error {
+	todoID, err := uuid.Parse(id)
+	if err != nil {
+		return apperr.BadRequest(constants.TodoInvalidID, "invalid todo id")
 	}
 
-	if err := s.db.WithContext(ctx).Delete(entity).Error; err != nil {
-		return apperr.Internal(err)
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if _, ok := s.byID[todoID]; !ok {
+		return apperr.NotFound(constants.TodoNotFound, "todo not found")
 	}
-
+	delete(s.byID, todoID)
 	return nil
 }
 
-func (s *Service) findByID(ctx context.Context, id string) (*entities.Todo, *apperr.Error) {
+func (s *Service) findByID(id string) (*Todo, *apperr.Error) {
 	todoID, err := uuid.Parse(id)
 	if err != nil {
 		return nil, apperr.BadRequest(constants.TodoInvalidID, "invalid todo id")
 	}
 
-	var entity entities.Todo
-	if err := s.db.WithContext(ctx).First(&entity, "id = ?", todoID).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperr.NotFound(constants.TodoNotFound, "todo not found")
-		}
-		return nil, apperr.Internal(err)
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	row, ok := s.byID[todoID]
+	if !ok {
+		return nil, apperr.NotFound(constants.TodoNotFound, "todo not found")
 	}
-	return &entity, nil
+	return row, nil
 }
 
-func toResponse(entity entities.Todo) responses.TodoResponse {
+func toResponse(row *Todo) responses.TodoResponse {
 	return responses.TodoResponse{
-		ID:          entity.ID.String(),
-		Title:       entity.Title,
-		Description: entity.Description,
-		Completed:   entity.Completed,
-		CreatedAt:   entity.CreatedAt,
-		UpdatedAt:   entity.UpdatedAt,
+		ID:          row.ID.String(),
+		Title:       row.Title,
+		Description: row.Description,
+		Completed:   row.Completed,
+		CreatedAt:   row.CreatedAt,
+		UpdatedAt:   row.UpdatedAt,
 	}
 }

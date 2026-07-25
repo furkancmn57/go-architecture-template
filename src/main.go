@@ -1,9 +1,3 @@
-// Package main is the single entry point.
-//
-// @title           Go Base Template API
-// @version         1.0
-// @description     Horizontal-layer modular monolith base template (no repository pattern, no outbox, no cmd/worker).
-// @BasePath        /api/v1
 package main
 
 import (
@@ -20,13 +14,9 @@ import (
 	"github.com/furkancmn57/go-base-template/src/common/apperr"
 	"github.com/furkancmn57/go-base-template/src/common/logger"
 	"github.com/furkancmn57/go-base-template/src/config"
-	"github.com/furkancmn57/go-base-template/src/constants"
-	v1 "github.com/furkancmn57/go-base-template/src/controllers/v1"
 	"github.com/furkancmn57/go-base-template/src/extensions"
 	appgraphql "github.com/furkancmn57/go-base-template/src/graphql"
 	todoservice "github.com/furkancmn57/go-base-template/src/services/todo"
-
-	_ "github.com/furkancmn57/go-base-template/src/docs"
 )
 
 func main() {
@@ -36,19 +26,6 @@ func main() {
 		os.Exit(1)
 	}
 	logger.Init(cfg.AppEnv)
-
-	gormDB, err := extensions.AddDatabase(cfg.Postgres)
-	if err != nil {
-		slog.Error("database", "error", err)
-		os.Exit(1)
-	}
-
-	redisClient, err := extensions.AddRedis(cfg.Redis)
-	if err != nil {
-		slog.Error("redis", "error", err)
-		os.Exit(1)
-	}
-	defer redisClient.Close()
 
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
@@ -63,38 +40,33 @@ func main() {
 		}))
 	}
 
-	extensions.RegisterHealth(app, gormDB, redisClient)
-	extensions.RegisterOpenAPI(app)
+	app.Get("/health", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{"status": "ok"})
+	})
 
-	todoService := todoservice.NewService(gormDB)
-	api := app.Group("/api/" + constants.APIVersion)
-	v1.NewTodoController(todoService).Register(api)
-
-	if cfg.GraphQL.Enabled {
-		schema, err := appgraphql.NewSchema(todoService)
-		if err != nil {
-			slog.Error("graphql schema", "error", err)
-			os.Exit(1)
-		}
-		extensions.RegisterGraphQL(app, schema)
-		slog.Info("graphql enabled", "path", "/graphql")
+	todoService := todoservice.NewService()
+	schema, err := appgraphql.NewSchema(todoService)
+	if err != nil {
+		slog.Error("graphql schema", "error", err)
+		os.Exit(1)
 	}
+	extensions.RegisterGraphQL(app, schema)
 
 	go func() {
 		if err := app.Listen(":" + cfg.AppPort); err != nil {
 			slog.Error("server stopped", "error", err)
 		}
 	}()
-	slog.Info("listening", "port", cfg.AppPort, "env", cfg.AppEnv)
+	slog.Info("listening", "port", cfg.AppPort, "env", cfg.AppEnv, "graphql", "/graphql")
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	slog.Info("shutting down gracefully")
+	slog.Info("shutting down")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := app.ShutdownWithContext(ctx); err != nil {
-		slog.Error("error during shutdown", "error", err)
+		slog.Error("shutdown error", "error", err)
 	}
 }

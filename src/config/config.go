@@ -20,10 +20,6 @@ const defaultAppEnv = "local"
 type Config struct {
 	AppEnv  string `env:"APP_ENV" envDefault:"local"`
 	AppPort string `env:"APP_PORT" envDefault:"7090"`
-
-	Postgres Postgres
-	Redis    Redis
-	GraphQL  GraphQL
 }
 
 // Load reads src/config/env/env.{APP_ENV} (default: local) and parses into Config.

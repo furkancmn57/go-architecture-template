@@ -8,8 +8,7 @@ import (
 	todoservice "github.com/furkancmn57/go-base-template/src/services/todo"
 )
 
-// NewSchema builds the root GraphQL schema. Resolvers call the same services
-// as REST controllers — no separate business layer for GraphQL.
+// NewSchema builds the root GraphQL schema from service resolvers.
 func NewSchema(todoSvc *todoservice.Service) (gql.Schema, error) {
 	schema, err := gql.NewSchema(gql.SchemaConfig{
 		Query: gql.NewObject(gql.ObjectConfig{

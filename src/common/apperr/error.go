@@ -1,7 +1,4 @@
-// Package apperr provides the single typed error currency for the whole
-// application. Handlers must never leak raw `error` values to callers: every
-// business rule violation should be surfaced as an *apperr.Error and written
-// out through WriteHTTP.
+// Package apperr is the typed error currency for services and transports.
 package apperr
 
 import (

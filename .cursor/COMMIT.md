@@ -37,9 +37,8 @@ Agents and humans must use this format when creating git commits.
 
 Examples used in this project:
 
-- `todo` — todo feature / service / controller
-- `graphql` — optional GraphQL transport
-- `openapi` / `docs` — swag / OpenAPI
+- `todo` — todo service / store / resolvers
+- `graphql` — schema / transport
 - `config` — env / config packages
 - `cursor` — `.cursor/` rules and project guides
 

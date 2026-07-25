@@ -13,7 +13,7 @@ type httpBody struct {
 
 // WriteHTTP renders an *apperr.Error as the standard JSON error envelope.
 // This is the ONLY place allowed to translate an *apperr.Error into an HTTP
-// response; controllers must call this instead of building error JSON
+// response; HTTP entry points must call this instead of building error JSON
 // themselves.
 func WriteHTTP(c *fiber.Ctx, err *Error) error {
 	if err == nil {

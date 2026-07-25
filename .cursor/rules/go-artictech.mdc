@@ -4,57 +4,41 @@ globs: "**/*.go"
 alwaysApply: true
 ---
 
-# Go Base Template — Mimari Kuralları
+# Go Base Template — `feature/graphql`
 
-Yatay katmanlı monolit (NotificationApi düzeni). Stack: Fiber v2, GORM/Postgres
-(code-first Fluent + versioned migrations), Redis, ozzo-validation, OpenAPI (swaggo),
-opsiyonel GraphQL (`GRAPHQL_ENABLED`). Bu branch GraphQL içerir; REST-only için `main`.
+Lean GraphQL-only branch. Fiber hosts `/graphql` + GraphiQL. Storage is
+**in-memory**. No GORM / Postgres / Redis / REST / OpenAPI / Docker deps.
+
+REST + GORM: checkout `main`.
 
 ## Yasaklar
 
-- Repository / UoW yok — `*gorm.DB` doğrudan `services/{resource}/` içinde
-- Outbox / `cmd/` / `internal/` / `platform/` / `features/` / `consumers/` / `endpoints/` / `events/` yok
-- RabbitMQ / outbound HTTP client / domain event dispatcher yok
+- GORM / Postgres / Redis / migrations / Fluent maps yok
+- REST controllers / OpenAPI / `src/docs` yok
+- Repository / UoW / Outbox / `cmd/` / `internal/` / `platform/` / `features/` yok
+- RabbitMQ / domain events / outbound HTTP yok
 - `"Get"` öneki yok (`Todos`, `TodoById`)
-- Ham `error` handler'dan sızmaz — `*apperr.Error` + `apperr.WriteHTTP`
-- Hata `code` string'leri hardcoded değil — `constants/` (`TODO_NOT_FOUND`, …)
-- Fat controller yok — ince handler + `Register(api)`
-- GraphQL ayrı iş kuralı yazmaz — aynı `services/` kullanılır
-- Entity üzerinde kolon/type GORM tag yok — şema Fluent map (`Columns` + `Migrate`)
-- Shadow kolon struct yasak — `AutoMigrate(entity)` + `ApplyColumns`
-- Entity `mappings` import etmez (cycle); `TableName` map ile aynı string
-- `AutoMigrate` sadece map `Migrate` / migration `Up` içinde
-- ent yok
-- Elle OpenAPI YAML yok — `make openapi`
+- Servis `*apperr.Error` döner; resolver onu `error` olarak iletir
+- Hata kodları `constants/` altında
+- Resolver iş kuralı yazmaz — `services/` kullanır
 
 ## Dizin
 
 ```text
 src/main.go
-src/config/              # + graphql.go (GRAPHQL_ENABLED)
-src/extensions/          # AddDatabase, AddRedis, health, OpenAPI, GraphQL
-src/docs/
-src/common/              # Model, WriteJSON, apperr, logger
+src/config/
+src/extensions/graphql.go
+src/common/{apperr,logger}/
 src/constants/
-src/interfaces/          # Cache
-src/controllers/v1/      # ince handler + Register(api)
-src/graphql/             # schema + resolvers → services
-src/services/{resource}/ (+ validations/)
-src/services/cache/
-src/data/
-  ensure.go  postgres.go  migrate.go
-  migrations/  entities/  mappings/
-src/models/requests|responses/
+src/graphql/
+src/services/{resource}/   # service (in-memory) + validations/
+src/models/{requests,responses}/
 ```
 
 İsimlendirme: [STRUCTURE.md](../STRUCTURE.md).
 
 ## Prensipler
 
-- Code-first Fluent: entity alanları + map `Columns`/`Migrate`
-- Startup: `data.Setup` → DB yoksa oluştur → pending migration → `schema_migrations`
-- HTTP: `controllers/v1` — `Register(api)` path'leri handler ile birlikte
-- GraphQL: `GRAPHQL_ENABLED=true` → `/graphql` (+ GraphiQL)
-- Controller / resolver ince: decode → service → yanıt
-- Validation: `services/{resource}/validations/`
-- OpenAPI: annotation → `make openapi`
+- Tek API: `/graphql`. Health: `/health` (main içinde).
+- In-memory store; restart = data loss (template).
+- Validation: service girişinde `validations/`.

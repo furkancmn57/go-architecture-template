@@ -1,8 +1,0 @@
-.git
-.idea
-.cursor
-bin
-tmp
-*.md
-.env
-.env.*
