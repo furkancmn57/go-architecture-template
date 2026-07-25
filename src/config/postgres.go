@@ -13,7 +13,7 @@ type Postgres struct {
 	DBName   string `env:"POSTGRES_DB" envDefault:"go_base_template"`
 }
 
-// DSN builds the connection string for the gorm driver.
+// DSN builds the Postgres connection string (GORM / lib/pq).
 func (c Postgres) DSN() string {
 	return fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",

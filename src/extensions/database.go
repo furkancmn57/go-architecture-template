@@ -8,14 +8,7 @@ import (
 	"github.com/furkancmn57/go-base-template/src/data"
 )
 
-// AddDatabase opens Postgres and runs AutoMigrate.
+// AddDatabase creates the DB if missing, opens Postgres, and runs versioned migrations.
 func AddDatabase(cfg config.Postgres) (*gorm.DB, error) {
-	db, err := data.New(cfg)
-	if err != nil {
-		return nil, err
-	}
-	if err := data.Migrate(db); err != nil {
-		return nil, err
-	}
-	return db, nil
+	return data.Setup(cfg)
 }

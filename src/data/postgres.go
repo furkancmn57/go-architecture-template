@@ -16,7 +16,10 @@ func New(cfg config.Postgres) (*gorm.DB, error) {
 		Logger: logger.Default.LogMode(logger.Warn),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("data: failed to connect to postgres: %w", err)
+		return nil, fmt.Errorf(
+			"data: failed to connect to postgres (host=%s port=%d user=%s db=%s): %w",
+			cfg.Host, cfg.Port, cfg.User, cfg.DBName, err,
+		)
 	}
 
 	sqlDB, err := db.DB()

@@ -1,7 +1,7 @@
 package apperr
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -23,7 +23,7 @@ func WriteHTTP(c *fiber.Ctx, err *Error) error {
 		err.Status = http.StatusInternalServerError
 	}
 	if err.Err != nil {
-		log.Printf("apperr: %s (code=%s status=%d): %v", err.Message, err.Code, err.Status, err.Err)
+		slog.Error("apperr", "message", err.Message, "code", err.Code, "status", err.Status, "error", err.Err)
 	}
 	return c.Status(err.Status).JSON(httpBody{Error: err})
 }

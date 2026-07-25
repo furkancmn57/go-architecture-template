@@ -6,52 +6,53 @@ alwaysApply: true
 
 # Go Base Template — Mimari Kuralları
 
-Yatay katmanlı monolit (NotificationApi düzeni). Stack: Fiber v2, GORM/Postgres,
-RabbitMQ (best-effort), Redis, ozzo-validation, OpenAPI via swaggo + UI at `/openapi/*`.
+Yatay katmanlı monolit (NotificationApi düzeni). Stack: Fiber v2, GORM/Postgres
+(code-first Fluent + versioned migrations), Redis, ozzo-validation, OpenAPI (swaggo).
 GraphQL: ayrı branch `feature/graphql` (main'de yok).
 
 ## Yasaklar
 
 - Repository / UoW yok — `*gorm.DB` doğrudan `services/{resource}/` içinde
-- Outbox / `cmd/worker` / `cmd/` / `internal/` / `platform/` / `features/` yok
+- Outbox / `cmd/` / `internal/` / `platform/` / `features/` / `consumers/` / `endpoints/` / `events/` yok
+- RabbitMQ / outbound HTTP client / domain event dispatcher yok
 - `"Get"` öneki yok (`Todos`, `TodoById`)
 - Ham `error` handler'dan sızmaz — `*apperr.Error` + `apperr.WriteHTTP`
 - Hata `code` string'leri hardcoded değil — `constants/` (`TODO_NOT_FOUND`, …)
-- Fat controller yok (`*gorm.DB` controller'da olmaz)
-- Elle OpenAPI YAML bakımı yok — annotation'lardan `make openapi` ile `src/docs` üretilir ve commit edilir
+- Fat controller yok — ince handler + `Register(api)`
+- Entity üzerinde kolon/type GORM tag yok — şema Fluent map (`Columns` + `Migrate`)
+- Shadow kolon struct yasak — `AutoMigrate(entity)` + `ApplyColumns`
+- Entity `mappings` import etmez (cycle); `TableName` map ile aynı string
+- `AutoMigrate` sadece map `Migrate` / migration `Up` içinde
+- ent yok
+- Elle OpenAPI YAML yok — `make openapi`
 
 ## Dizin
 
 ```text
 src/main.go
-src/config/                      # env loader
-src/extensions/                  # Add*, RegisterHealth, RegisterOpenAPI
-src/docs/                        # swag çıktısı — `make openapi` ile yenile, commit et
-src/common/ (+ apperr/)          # Model, WriteJSON, BaseConsumer
+src/config/
+src/extensions/          # AddDatabase, AddRedis, health, OpenAPI
+src/docs/
+src/common/              # Model, WriteJSON, apperr, logger
 src/constants/
-src/interfaces/                  # Publisher, Subscriber, Cache
-src/controllers/v1/              # thin handlers + swag annotations
-src/services/{resource}/         # service.go + validations/
+src/interfaces/          # Cache
+src/controllers/v1/      # ince handler + Register(api)
+src/services/{resource}/ (+ validations/)
 src/services/cache/
 src/data/
-  postgres.go  migrate.go
-  entities/  mappings/
+  ensure.go  postgres.go  migrate.go
+  migrations/  entities/  mappings/
 src/models/requests|responses/
-src/events/{domain}/  consumers/{domain}/
 ```
-
-Outbound HTTP client gerektiğinde `src/proxies/` eklenir.
 
 İsimlendirme: [STRUCTURE.md](../STRUCTURE.md).
 
 ## Prensipler
 
-- Entity → `data/entities`, tablo adı → `data/mappings`, liste → `data/migrate.go`
-- Publish: `interfaces.Publisher` (impl: `extensions.RabbitMQ`), topic `{module}.{action}`, best-effort
-- Consumer: `consumers/{domain}` + `common.BaseConsumer` + `interfaces.Subscriber`
-- Validation: `services/{resource}/validations/` altında request başına bir dosya
-- RabbitMQ: `extensions.AddRabbitMQ`; exchange `constants.RabbitMQExchange`
-- Wiring: `main` → `extensions.Add*` → service → `controller.Register(api)` / consumer
-- Route'lar controller `Register` içinde; `main` sadece API group + `Register` çağırır
-- OpenAPI: handler annotation → `make openapi` → `src/docs` commit → UI `/openapi/*`
-- GraphQL istenirse: `feature/graphql` branch (main'de taşınmaz)
+- Code-first Fluent: entity alanları + map `Columns`/`Migrate`
+- Startup: `data.Setup` → DB yoksa oluştur → pending migration → `schema_migrations`
+- HTTP: `controllers/v1` — `Register(api)` path'leri handler ile birlikte
+- Controller ince: decode → service → `WriteJSON` / `WriteHTTP`
+- Validation: `services/{resource}/validations/`
+- OpenAPI: annotation → `make openapi`
+- GraphQL: `feature/graphql` branch

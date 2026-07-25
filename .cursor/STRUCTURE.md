@@ -1,7 +1,40 @@
 # Naming & Folder Conventions
 
 This project follows the NotificationApi horizontal layout. Use this file as
-the naming source of truth when adding models, events, and consumers.
+the naming source of truth when adding models and folders.
+
+## Schema — code-first + Fluent mappings (NotificationApi-style)
+
+| Layer | Role |
+|-------|------|
+| `entities/` | Clean POCO (fields only). No column/type GORM tags. |
+| `mappings/{name}_map.go` | `TableName`, `Entity()`, Fluent `Columns()`, `Migrate(tx)`. |
+| `mappings/fluent.go` | `Column` + `ApplyColumns` (IsRequired / HasMaxLength equivalent). |
+| `migrations/` | Versioned steps call `mappings.XMap{}.Migrate(tx)`. |
+| `schema_migrations` | Applied version history. |
+
+```text
+src/data/entities/todo.go                # POCO (TableName matches map)
+src/data/mappings/todo_map.go            # TodoMap: Entity + Columns + Migrate
+src/data/mappings/fluent.go              # ApplyColumns helper
+src/data/migrations/000001_create_todos.go
+src/data/migrate.go                      # Setup / Migrate runner
+src/data/ensure.go                       # CREATE DATABASE if missing
+```
+
+Startup: `EnsureDatabase` → connect → `Migrate` (pending only).
+
+`Migrate` = `AutoMigrate(entity)` then `ApplyColumns` for Fluent rules. No shadow
+column structs. Entity must not import `mappings` (import cycle).
+
+**New table checklist**
+
+1. `entities/{name}.go` — fields only + `TableName()` matching the map
+2. `mappings/{name}_map.go` — `Entity`, `Columns`, `Migrate` (`AutoMigrate` + `ApplyColumns`)
+3. `migrations/00000N_....go` — `Up: mappings.XMap{}.Migrate`
+4. Restart — row in `schema_migrations`
+
+Do not put domain schema tags on entities. Do not call `AutoMigrate` from services/controllers.
 
 ## Models — one type per file
 
@@ -21,11 +54,6 @@ src/models/requests/{action}_{resource}_request.go   → type {Action}{Resource}
 src/models/responses/{resource}_response.go          → type {Resource}Response
 ```
 
-Examples (NotificationApi → Go):
-
-- `TemplateCreateRequest.cs` → `create_template_request.go` / `CreateTemplateRequest`
-- `TemplateFilterRequest.cs` → `filter_template_request.go` / `FilterTemplateRequest`
-
 Do not put multiple request/response structs in the same file.
 
 ## Validations — folder under the service
@@ -38,93 +66,32 @@ src/services/{resource}/validations/
 
 Called from the service at method entry: `validations.CreateTodoRequest(req)`.
 
-## RabbitMQ
-
-```text
-src/interfaces/publisher.go    # Publisher port
-src/interfaces/subscriber.go   # Subscriber + Handler ports
-src/extensions/rabbitmq.go     # AddRabbitMQ + Publish/Subscribe/Close
-```
-
-Exchange name: `constants.RabbitMQExchange`. Topic strings: `constants/{domain}_topics.go`.
-
 ## Error codes
 
-API JSON `code` values live in `constants/` (not hardcoded in services/controllers):
+API JSON `code` values live in `constants/`:
 
 ```text
-src/constants/errors.go           # shared: INVALID_REQUEST_BODY, VALIDATION_ERROR, …
-src/constants/{domain}_errors.go  # e.g. todo_errors.go → TODO_NOT_FOUND
+src/constants/errors.go           # shared
+src/constants/{domain}_errors.go  # e.g. TODO_NOT_FOUND
 ```
 
 Call sites: `apperr.NotFound(constants.TodoNotFound, "todo not found")`.
 
-## Events — domain folder, one event per file
-
-Folder = domain / entity the event belongs to (NotificationApi `Events/News/`).
+## HTTP — controllers
 
 ```text
-src/events/{domain}/
-  {action}_event.go         # one payload struct per file
-
-src/constants/{domain}_topics.go   # topic string constants
+src/controllers/v1/{resource}.go   # handlers + Register(api)
 ```
 
-Todo example:
-
-```text
-src/events/todo/
-  created_event.go      → CreatedEvent
-  updated_event.go      → UpdatedEvent
-  completed_event.go    → CompletedEvent
-  deleted_event.go      → DeletedEvent
-
-src/constants/todo_topics.go
-  TodoCreated / TodoUpdated / TodoCompleted / TodoDeleted
-```
-
-Topic naming: `{module}.{action}` (e.g. `todo.completed`). Topic strings live in
-`constants/`, payload structs live in `events/`.
-
-## Consumers — domain folder + {Verb}When{Action}
-
-Folder = domain / entity the consumer works on (NotificationApi `Consumers/News/`).
-
-Naming mirrors NotificationApi (`SendMailWhenForgotPassword`):
-
-```text
-src/consumers/{domain}/{verb}_when_{action}.go
-  → type {Verb}When{Action}
-  → New{Verb}When{Action}(...)
-  → Register(subscriber)
-```
-
-Todo example:
-
-```text
-src/consumers/todo/log_when_todo_completed.go
-  → LogWhenTodoCompleted
-```
-
-Rules:
-
-1. One consumer type per file.
-2. Folder name = the entity/domain the consumer handles (`todo`, …).
-3. Type name = verb + `When` + action/event (e.g. `LogWhenTodoCompleted`, `SendMailWhenForgotPassword`).
-4. Wire each consumer explicitly in `main.go` via `Register`.
+`main` → `api := app.Group("/api/v1")` → `NewXController(svc).Register(api)`.
 
 ## Quick checklist for a new resource
 
-1. Entity: `data/entities/{name}.go` + `data/mappings/{name}.go` + `data/migrate.go`
-2. Requests: one file each under `models/requests/`
-3. Responses: one file each under `models/responses/`
-4. Service: `services/{name}/service.go` + `validations/` (one file per request);
-   shared helper `apperr.FromValidation`
-5. Events (if any): `events/{name}/{action}_event.go` + topic consts in `constants/{name}_topics.go`
-6. Consumers (if any): `consumers/{name}/{verb}_when_{action}.go`
-7. Controller: `controllers/v1/{name}.go` + `Register(api)` for its routes
-8. Controller annotations (`@Summary`, `@Router`, …) + `make openapi` (commit `src/docs`)
-9. Wire in `main.go`: `NewXController(svc).Register(api)`
+1. Entity (POCO) + Fluent map (`Entity`/`Columns`/`Migrate`) + versioned migration
+2. Requests / responses (one type per file)
+3. Service + validations
+4. Controller handlers + `Register(api)` + swag + `make openapi`
+5. Wire in `main.go`
 
 ## GraphQL
 

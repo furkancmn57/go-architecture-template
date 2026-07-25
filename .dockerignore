@@ -2,7 +2,7 @@
 .idea
 .cursor
 bin
+tmp
 *.md
 .env
 .env.*
-!src/config/env/.env.example
