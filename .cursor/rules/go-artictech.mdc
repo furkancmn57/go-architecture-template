@@ -4,9 +4,9 @@ globs: "**/*.go"
 alwaysApply: true
 ---
 
-# Go Base Template — `feature/graphql`
+# Go Base Template — `graphql`
 
-Lean GraphQL-only branch. Fiber hosts `/graphql` + GraphiQL. Storage is
+GraphQL-only branch. Fiber hosts `/graphql` + GraphiQL. Storage is
 **in-memory**. No GORM / Postgres / Redis / REST / OpenAPI / Docker deps.
 
 REST + GORM: checkout `main`.

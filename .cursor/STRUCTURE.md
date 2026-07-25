@@ -1,6 +1,6 @@
-# Naming & Folder Conventions (`feature/graphql`)
+# Naming & Folder Conventions (`graphql`)
 
-Lean GraphQL-only branch. In-memory storage. No GORM / REST / OpenAPI.
+GraphQL-only branch. In-memory storage. No GORM / REST / OpenAPI.
 
 ## Models — one type per file
 
