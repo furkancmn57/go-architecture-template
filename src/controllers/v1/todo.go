@@ -23,7 +23,7 @@ func NewTodoController(service *todoservice.Service) *TodoController {
 	return &TodoController{service: service}
 }
 
-// Register mounts todo HTTP routes under the given API group (e.g. /api/v1).
+// Register mounts this controller's routes under the API group.
 func (ctrl *TodoController) Register(api fiber.Router) {
 	todos := api.Group("/todos")
 	todos.Post("/", ctrl.Create)

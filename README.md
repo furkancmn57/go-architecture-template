@@ -13,10 +13,10 @@ Horizontal-layer Go API template. Single binary entry at `src/main.go`.
 | Layer | Choice |
 |-------|--------|
 | HTTP | Fiber v2 |
-| DB | GORM + Postgres |
+| DB | GORM + Postgres (code-first Fluent maps + versioned migrations) |
 | Cache | Redis |
-| Messaging | RabbitMQ |
 | Validation | ozzo-validation |
+| Logging | `log/slog` (text in local/dev, JSON elsewhere) |
 | API docs | OpenAPI (swaggo) at `/openapi/*` |
 
 ## Layout
@@ -24,37 +24,37 @@ Horizontal-layer Go API template. Single binary entry at `src/main.go`.
 ```text
 src/
   main.go
-  config/           # env loader
-  extensions/       # DB, Redis, RabbitMQ, health, OpenAPI
-  common/           # Model, WriteJSON, BaseConsumer, apperr
+  config/           # env loader + env/env.local, env/env.development
+  extensions/       # DB, Redis, health, OpenAPI
+  common/           # Model, WriteJSON, apperr, logger
   constants/
-  interfaces/       # Publisher, Subscriber, Cache
-  controllers/v1/   # thin HTTP handlers
+  interfaces/       # Cache
+  controllers/v1/   # thin handlers + Register(api)
   services/         # {resource}/ + validations/; cache/
-  data/             # entities, mappings, postgres, migrate
+  data/             # entities (POCO) + Fluent mappings + versioned migrations
   models/           # requests/, responses/
-  events/           # {domain}/
-  consumers/        # {domain}/
   docs/             # swag output (make openapi)
 ```
 
 ## Run
 
+Defaults to `APP_ENV=local` → loads `src/config/env/env.local`.
+
 ```bash
-cp src/config/env/.env.example .env
-docker compose up -d postgres redis rabbitmq
-make run
+docker compose up -d postgres redis
+make run        # APP_ENV=local
+make run-dev    # APP_ENV=development
 ```
 
 | Endpoint | URL |
 |----------|-----|
-| API | http://localhost:8080/api/v1 |
-| Health | http://localhost:8080/health |
-| OpenAPI | http://localhost:8080/openapi/index.html |
+| API | http://localhost:7090/api/v1 |
+| Health | http://localhost:7090/health |
+| OpenAPI | http://localhost:7090/openapi/index.html |
 
 ## GraphQL (optional)
 
-`main` REST-only. GraphQL transport lives on a separate branch:
+`main` is REST-only. GraphQL lives on a separate branch:
 
 | | |
 |--|--|
@@ -65,10 +65,13 @@ make run
 
 | Target | Description |
 |--------|-------------|
-| `make run` | Run the API |
+| `make run` | Run API (`APP_ENV=local`) |
+| `make run-dev` | Run API (`APP_ENV=development`) |
 | `make build` | Build binary to `bin/` |
 | `make openapi` | Regenerate `src/docs` from controller annotations |
-| `make docker-up` / `docker-down` | Local Postgres, Redis, RabbitMQ |
+| `make docker-up` / `docker-down` | Local Postgres, Redis |
 | `make test` / `vet` | Tests and static analysis |
 
-`make openapi` requires: `go install github.com/swaggo/swag/cmd/swag@latest`
+```bash
+go install github.com/swaggo/swag/cmd/swag@latest   # make openapi
+```

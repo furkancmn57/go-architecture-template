@@ -8,18 +8,19 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	fiberlogger "github.com/gofiber/fiber/v2/middleware/logger"
 
 	"github.com/furkancmn57/go-base-template/src/common/apperr"
+	"github.com/furkancmn57/go-base-template/src/common/logger"
 	"github.com/furkancmn57/go-base-template/src/config"
 	"github.com/furkancmn57/go-base-template/src/constants"
-	todoconsumer "github.com/furkancmn57/go-base-template/src/consumers/todo"
 	v1 "github.com/furkancmn57/go-base-template/src/controllers/v1"
 	"github.com/furkancmn57/go-base-template/src/extensions"
 	todoservice "github.com/furkancmn57/go-base-template/src/services/todo"
@@ -30,58 +31,59 @@ import (
 func main() {
 	cfg, err := config.Load()
 	if err != nil {
-		log.Fatalf("main: failed to load config: %v", err)
+		slog.Error("failed to load config", "error", err)
+		os.Exit(1)
 	}
+	logger.Init(cfg.AppEnv)
 
 	gormDB, err := extensions.AddDatabase(cfg.Postgres)
 	if err != nil {
-		log.Fatalf("main: database: %v", err)
+		slog.Error("database", "error", err)
+		os.Exit(1)
 	}
 
 	redisClient, err := extensions.AddRedis(cfg.Redis)
 	if err != nil {
-		log.Fatalf("main: redis: %v", err)
+		slog.Error("redis", "error", err)
+		os.Exit(1)
 	}
 	defer redisClient.Close()
 
-	mq, err := extensions.AddRabbitMQ(cfg.RabbitMQ)
-	if err != nil {
-		log.Fatalf("main: rabbitmq: %v", err)
-	}
-	defer mq.Close()
-
 	app := fiber.New(fiber.Config{
+		DisableStartupMessage: true,
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
 			return apperr.WriteHTTP(c, apperr.Internal(err))
 		},
 	})
+	if logger.IsDev(cfg.AppEnv) {
+		app.Use(fiberlogger.New(fiberlogger.Config{
+			Format: "[${time}] ${status} ${method} ${path} ${latency}\n",
+			Output: os.Stdout,
+		}))
+	}
 
 	extensions.RegisterHealth(app, gormDB, redisClient)
 	extensions.RegisterOpenAPI(app)
 
-	todoService := todoservice.NewService(gormDB, mq)
+	todoService := todoservice.NewService(gormDB)
 	api := app.Group("/api/" + constants.APIVersion)
 	v1.NewTodoController(todoService).Register(api)
 
-	if err := todoconsumer.NewLogWhenTodoCompleted().Register(mq); err != nil {
-		log.Fatalf("main: failed to register todo consumer: %v", err)
-	}
-
 	go func() {
 		if err := app.Listen(":" + cfg.AppPort); err != nil {
-			log.Printf("main: server stopped: %v", err)
+			slog.Error("server stopped", "error", err)
 		}
 	}()
-	log.Printf("main: listening on port %s (env=%s)", cfg.AppPort, cfg.AppEnv)
+	slog.Info("listening", "port", cfg.AppPort, "env", cfg.AppEnv)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	log.Println("main: shutting down gracefully...")
+	slog.Info("shutting down gracefully")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := app.ShutdownWithContext(ctx); err != nil {
-		log.Printf("main: error during shutdown: %v", err)
+		slog.Error("error during shutdown", "error", err)
 	}
 }

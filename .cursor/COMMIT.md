@@ -41,7 +41,6 @@ Examples used in this project:
 - `graphql` — optional GraphQL transport
 - `openapi` / `docs` — swag / OpenAPI
 - `config` — env / config packages
-- `messaging` — RabbitMQ / events / consumers
 - `cursor` — `.cursor/` rules and project guides
 
 Omit scope when the change is cross-cutting.
@@ -49,9 +48,7 @@ Omit scope when the change is cross-cutting.
 ## Examples
 
 ```text
-feat(todo): add complete endpoint and completed event
-
-fix(messaging): ignore publish errors after DB commit
+feat(todo): add complete endpoint
 
 docs(cursor): move STRUCTURE naming guide under .cursor
 

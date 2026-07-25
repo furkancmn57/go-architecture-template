@@ -7,9 +7,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// Model is the base struct every GORM entity in the codebase must embed.
-// It intentionally avoids relying on database-side UUID generation so the
-// template works against any Postgres instance without extra extensions.
+// Model is the base struct every GORM entity embeds.
+// Domain column types live in data/mappings Fluent maps; only shared PK / soft-delete tags stay here.
 type Model struct {
 	ID        uuid.UUID      `gorm:"type:uuid;primaryKey" json:"id"`
 	CreatedAt time.Time      `json:"createdAt"`

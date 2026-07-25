@@ -15,7 +15,7 @@ Commit mesajları [`.cursor/COMMIT.md`](../COMMIT.md) içindeki **Conventional C
 
 - Imperative, kısa subject; gerekirse body'de **neden**
 - Yaygın type'lar: `feat`, `fix`, `docs`, `refactor`, `build`, `chore`, `test`, `ci`, `perf`
-- Scope örnekleri: `todo`, `graphql`, `openapi`, `config`, `messaging`, `cursor`
+- Scope örnekleri: `todo`, `graphql`, `openapi`, `config`, `cursor`
 
 ## Örnek
 
