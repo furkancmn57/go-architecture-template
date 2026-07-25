@@ -11,12 +11,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 	fiberlogger "github.com/gofiber/fiber/v2/middleware/logger"
 
-	"github.com/furkancmn57/go-base-template/src/common/apperr"
-	"github.com/furkancmn57/go-base-template/src/common/logger"
-	"github.com/furkancmn57/go-base-template/src/config"
-	"github.com/furkancmn57/go-base-template/src/extensions"
-	appgraphql "github.com/furkancmn57/go-base-template/src/graphql"
-	todoservice "github.com/furkancmn57/go-base-template/src/services/todo"
+	"github.com/furkancmn57/go-architecture-template/src/common/apperr"
+	"github.com/furkancmn57/go-architecture-template/src/common/logger"
+	"github.com/furkancmn57/go-architecture-template/src/config"
+	"github.com/furkancmn57/go-architecture-template/src/extensions"
+	appgraphql "github.com/furkancmn57/go-architecture-template/src/graphql"
+	todoservice "github.com/furkancmn57/go-architecture-template/src/services/todo"
 )
 
 func main() {

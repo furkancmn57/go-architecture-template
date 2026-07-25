@@ -4,7 +4,7 @@ package apperr
 import (
 	"net/http"
 
-	"github.com/furkancmn57/go-base-template/src/constants"
+	"github.com/furkancmn57/go-architecture-template/src/constants"
 )
 
 // Error is the typed error every service method returns instead of a raw

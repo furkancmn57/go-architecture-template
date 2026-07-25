@@ -8,11 +8,11 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/furkancmn57/go-base-template/src/common/apperr"
-	"github.com/furkancmn57/go-base-template/src/constants"
-	"github.com/furkancmn57/go-base-template/src/models/requests"
-	"github.com/furkancmn57/go-base-template/src/models/responses"
-	"github.com/furkancmn57/go-base-template/src/services/todo/validations"
+	"github.com/furkancmn57/go-architecture-template/src/common/apperr"
+	"github.com/furkancmn57/go-architecture-template/src/constants"
+	"github.com/furkancmn57/go-architecture-template/src/models/requests"
+	"github.com/furkancmn57/go-architecture-template/src/models/responses"
+	"github.com/furkancmn57/go-architecture-template/src/services/todo/validations"
 )
 
 // Todo is the in-memory domain model.

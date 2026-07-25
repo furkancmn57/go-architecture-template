@@ -3,8 +3,8 @@ package graphql
 import (
 	"github.com/graphql-go/graphql"
 
-	"github.com/furkancmn57/go-base-template/src/models/requests"
-	todoservice "github.com/furkancmn57/go-base-template/src/services/todo"
+	"github.com/furkancmn57/go-architecture-template/src/models/requests"
+	todoservice "github.com/furkancmn57/go-architecture-template/src/services/todo"
 )
 
 var todoType = graphql.NewObject(graphql.ObjectConfig{

@@ -19,7 +19,7 @@ In-memory storage — no GORM, Postgres, Redis, or REST.
 | Validation | ozzo-validation |
 | Logging | `log/slog` (text in local/dev, JSON elsewhere) |
 
-REST + GORM + Postgres: [`main`](https://github.com/furkancmn57/go-base-template/tree/main).
+REST + GORM + Postgres: [`main`](https://github.com/furkancmn57/go-architecture-template/tree/main).
 
 ## Layout
 

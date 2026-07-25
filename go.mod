@@ -1,4 +1,4 @@
-module github.com/furkancmn57/go-base-template
+module github.com/furkancmn57/go-architecture-template
 
 go 1.25.5
 

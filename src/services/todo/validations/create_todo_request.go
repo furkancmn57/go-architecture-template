@@ -3,8 +3,8 @@ package validations
 import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 
-	"github.com/furkancmn57/go-base-template/src/common/apperr"
-	"github.com/furkancmn57/go-base-template/src/models/requests"
+	"github.com/furkancmn57/go-architecture-template/src/common/apperr"
+	"github.com/furkancmn57/go-architecture-template/src/models/requests"
 )
 
 // CreateTodoRequest validates a create todo payload.

@@ -5,7 +5,7 @@ import (
 
 	gql "github.com/graphql-go/graphql"
 
-	todoservice "github.com/furkancmn57/go-base-template/src/services/todo"
+	todoservice "github.com/furkancmn57/go-architecture-template/src/services/todo"
 )
 
 // NewSchema builds the root GraphQL schema from service resolvers.

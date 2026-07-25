@@ -1,4 +1,4 @@
-APP_NAME := go-base-template
+APP_NAME := go-architecture-template
 MAIN_PATH := ./src/main.go
 
 .PHONY: run run-dev build clean tidy test vet
